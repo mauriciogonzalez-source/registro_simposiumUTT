@@ -913,6 +913,7 @@
         
         // Inicializar la aplicación
         document.addEventListener('DOMContentLoaded', function() {
+            console.log("Inicializando aplicación...");
             cargarDatosGuardados();
             cargarTalleres();
             inicializarEventos();
@@ -920,21 +921,25 @@
         
         // Cargar datos guardados del localStorage
         function cargarDatosGuardados() {
+            console.log("Cargando datos guardados...");
+            
             // Cargar estudiantes registrados
             const estudiantesGuardados = localStorage.getItem('estudiantesRegistrados');
             if (estudiantesGuardados) {
                 estudiantesRegistrados = JSON.parse(estudiantesGuardados);
+                console.log(`Estudiantes cargados: ${estudiantesRegistrados.length}`);
             }
             
             // Cargar datos de talleres
             const talleresGuardados = localStorage.getItem('talleresData');
             if (talleresGuardados) {
                 const talleresData = JSON.parse(talleresGuardados);
+                console.log("Datos de talleres cargados:", talleresData);
                 
                 // Actualizar los arrays de inscritos en cada taller
                 for (const grupo in talleres) {
                     talleres[grupo].forEach(taller => {
-                        const tallerGuardado = talleresData[grupo].find(t => t.id === taller.id);
+                        const tallerGuardado = talleresData[grupo]?.find(t => t.id === taller.id);
                         if (tallerGuardado) {
                             taller.inscritos = tallerGuardado.inscritos;
                         }
@@ -947,13 +952,18 @@
         function guardarDatos() {
             localStorage.setItem('estudiantesRegistrados', JSON.stringify(estudiantesRegistrados));
             localStorage.setItem('talleresData', JSON.stringify(talleres));
+            console.log("Datos guardados en localStorage");
         }
         
         // Cargar los talleres en la interfaz organizados por horarios
         function cargarTalleres() {
+            console.log("Cargando talleres en la interfaz...");
+            
             // Cargar talleres de mañana
             const containerManana = document.getElementById('talleresMananaContainer');
             containerManana.innerHTML = '';
+            
+            console.log(`Talleres de mañana: ${talleres.manana.length}`);
             
             talleres.manana.forEach((taller, index) => {
                 const porcentaje = (taller.inscritos.length / taller.cupo) * 100;
@@ -999,6 +1009,8 @@
             const containerTarde = document.getElementById('talleresTardeContainer');
             containerTarde.innerHTML = '';
             
+            console.log(`Talleres de tarde: ${talleres.tarde.length}`);
+            
             talleres.tarde.forEach((taller, index) => {
                 const porcentaje = (taller.inscritos.length / taller.cupo) * 100;
                 const cupoLleno = taller.inscritos.length >= taller.cupo;
@@ -1042,10 +1054,14 @@
             // Actualizar también el selector de talleres para administración
             actualizarSelectorTalleres();
             actualizarListaSeleccionados();
+            
+            console.log("Talleres cargados correctamente");
         }
         
         // Inicializar eventos
         function inicializarEventos() {
+            console.log("Inicializando eventos...");
+            
             // Evento para el formulario de registro
             document.getElementById('registroForm').addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -1100,6 +1116,8 @@
                     validarCampo(this);
                 });
             });
+            
+            console.log("Eventos inicializados correctamente");
         }
         
         // Validar campo individual
