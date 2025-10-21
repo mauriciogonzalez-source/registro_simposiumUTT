@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro - Registro al 3er Simposio del Dia Mundial de la Alimentación 2025</title>
+    <title>Registro - 3er Simposio del Día Mundial de la Alimentación 2025</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -386,6 +386,44 @@
             border-bottom: none;
         }
         
+        .alert-custom {
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .taller-counter {
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .stats-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 600;
+        }
+        
         @media (max-width: 768px) {
             .header {
                 padding: 1.5rem 1rem;
@@ -448,10 +486,10 @@
         <!-- Encabezado -->
         <div class="header text-center">
             <div class="header-content">
-                <h1 class="display-5 fw-bold">3er simposio del Dia Munidal de la Alimentación</h1>
+                <h1 class="display-5 fw-bold">3er Simposio del Día Mundial de la Alimentación</h1>
                 <p class="lead fs-4">Universidad Tecnológica de Tehuacán</p>
-                <p class="mb-0 fs-5">23 y 24 de Octubre</p>
-                <p class="mt-2 fs-6">"Mano de la mano por unos alimentos y un futuro mejores"</p>
+                <p class="mb-0 fs-5">23 y 24 de Octubre de 2025</p>
+                <p class="mt-2 fs-6">"Mano a mano por unos alimentos y un futuro mejores"</p>
             </div>
         </div>
 
@@ -482,16 +520,19 @@
                         <div class="col-md-6 mb-3">
                             <label for="nombre" class="form-label">Nombre completo</label>
                             <input type="text" class="form-control" id="nombre" required>
+                            <div class="invalid-feedback">Por favor ingresa tu nombre completo</div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="matricula" class="form-label">Matrícula</label>
                             <input type="text" class="form-control" id="matricula" required>
+                            <div class="invalid-feedback">Por favor ingresa tu matrícula</div>
                         </div>
                     </div>
                     <div class="row mb-4">
                         <div class="col-md-6 mb-3">
                             <label for="email" class="form-label">Correo electrónico</label>
                             <input type="email" class="form-control" id="email" required>
+                            <div class="invalid-feedback">Por favor ingresa un correo válido</div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="cuatrimestre" class="form-label">Cuatrimestre</label>
@@ -502,6 +543,7 @@
                                 <option value="7°">7° Cuatrimestre</option>
                                 <option value="10°">10° Cuatrimestre</option>
                             </select>
+                            <div class="invalid-feedback">Por favor selecciona tu cuatrimestre</div>
                         </div>
                     </div>
                     
@@ -509,6 +551,12 @@
                     <div class="mb-4">
                         <h4 class="mb-3"><i class="fas fa-wrench me-2"></i>Selecciona 2 talleres para el día 23 de octubre</h4>
                         <p class="text-muted mb-4">Puedes seleccionar cualquier combinación de talleres, sin restricciones de horario.</p>
+                        
+                        <!-- Alert para mostrar estado de selección -->
+                        <div id="alertSeleccion" class="alert alert-info alert-custom" style="display: none;">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <span id="alertText"></span>
+                        </div>
                         
                         <!-- Talleres seleccionados -->
                         <div class="seleccionados-container">
@@ -564,6 +612,34 @@
                     </button>
                     
                     <div id="adminPanel" class="mt-4" style="display: none;">
+                        <!-- Estadísticas generales -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="stats-card text-center">
+                                    <div class="stats-number" id="totalInscritos">0</div>
+                                    <div class="stats-label">Total Inscritos</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stats-card text-center">
+                                    <div class="stats-number" id="talleresLlenos">0</div>
+                                    <div class="stats-label">Talleres Llenos</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stats-card text-center">
+                                    <div class="stats-number" id="talleresDisponibles">0</div>
+                                    <div class="stats-label">Talleres Disponibles</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stats-card text-center">
+                                    <div class="stats-number" id="porcentajeAsistencia">0%</div>
+                                    <div class="stats-label">Asistencia Promedio</div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <h5><i class="fas fa-users me-2"></i>Lista de inscritos por taller</h5>
                         <div id="listaTalleresAdmin" class="mb-4">
                             <!-- Lista de talleres con inscritos -->
@@ -578,6 +654,15 @@
                         </div>
                         <div id="listaAsistencia" class="mb-4">
                             <!-- Lista de estudiantes para pasar lista -->
+                        </div>
+                        
+                        <div class="mt-4">
+                            <button id="exportarDatos" class="btn btn-success">
+                                <i class="fas fa-file-export me-2"></i>Exportar Datos
+                            </button>
+                            <button id="limpiarDatos" class="btn btn-danger ms-2">
+                                <i class="fas fa-trash me-2"></i>Limpiar Todos los Datos
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -614,7 +699,7 @@
                             Por su destacada participación en el 3er Simposio
                         </div>
                         <div class="constancia-text">
-                            <span class="constancia-event">"Dia Mundial de la Alimentación 2025"</span>
+                            <span class="constancia-event">"Día Mundial de la Alimentación 2025"</span>
                         </div>
                         <div class="constancia-text">
                             realizado los días 23 y 24 de octubre del presente año
@@ -648,7 +733,7 @@
 
     <footer>
         <p>Universidad Tecnológica de Tehuacán | Programa de Conferencias y Talleres Alimentos</p>
-        <p>23 y 24 de Octubre | "Mano de la mano por unos alimentos y un futuro mejores"</p>
+        <p>23 y 24 de Octubre | "Mano a mano por unos alimentos y un futuro mejores"</p>
     </footer>
 
     <script>
@@ -828,467 +913,27 @@
         
         // Inicializar la aplicación
         document.addEventListener('DOMContentLoaded', function() {
+            cargarDatosGuardados();
             cargarTalleres();
             inicializarEventos();
         });
         
-        // Cargar los talleres en la interfaz organizados por horarios
-        function cargarTalleres() {
-            // Cargar talleres de mañana
-            const containerManana = document.getElementById('talleresMananaContainer');
-            containerManana.innerHTML = '';
+        // Cargar datos guardados del localStorage
+        function cargarDatosGuardados() {
+            // Cargar estudiantes registrados
+            const estudiantesGuardados = localStorage.getItem('estudiantesRegistrados');
+            if (estudiantesGuardados) {
+                estudiantesRegistrados = JSON.parse(estudiantesGuardados);
+            }
             
-            talleres.manana.forEach(taller => {
-                const porcentaje = (taller.inscritos.length / taller.cupo) * 100;
-                const cupoLleno = taller.inscritos.length >= taller.cupo;
-                const estaSeleccionado = talleresSeleccionados.includes(taller.id);
+            // Cargar datos de talleres
+            const talleresGuardados = localStorage.getItem('talleresData');
+            if (talleresGuardados) {
+                const talleresData = JSON.parse(talleresGuardados);
                 
-                const card = document.createElement('div');
-                card.className = `col-md-6 col-lg-4 mb-3 taller-card ${estaSeleccionado ? 'taller-selected' : ''} ${cupoLleno ? 'taller-full' : ''}`;
-                card.innerHTML = `
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h6 class="card-title">${taller.nombre}</h6>
-                            <p class="card-text taller-info"><i class="far fa-clock me-1"></i>${taller.horario}</p>
-                            <p class="card-text taller-info"><i class="fas fa-map-marker-alt me-1"></i>${taller.lugar}</p>
-                            <p class="card-text taller-info"><i class="fas fa-user me-1"></i>${taller.instructores}</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="form-check">
-                                    <input class="form-check-input taller-checkbox" type="checkbox" 
-                                           id="${taller.id}" value="${taller.id}" 
-                                           ${cupoLleno ? 'disabled' : ''} ${estaSeleccionado ? 'checked' : ''}>
-                                    <label class="form-check-label" for="${taller.id}">
-                                        Seleccionar
-                                    </label>
-                                </div>
-                                <span class="badge ${cupoLleno ? 'badge-full' : 'bg-primary'}">
-                                    ${taller.inscritos.length}/${taller.cupo}
-                                </span>
-                            </div>
-                            <div class="progress mt-2">
-                                <div class="progress-bar ${porcentaje >= 100 ? 'bg-danger' : 'bg-success'}" 
-                                     role="progressbar" style="width: ${Math.min(porcentaje, 100)}%;" 
-                                     aria-valuenow="${porcentaje}" aria-valuemin="0" aria-valuemax="100">
-                                    ${Math.round(porcentaje)}%
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                containerManana.appendChild(card);
-            });
-            
-            // Cargar talleres de tarde
-            const containerTarde = document.getElementById('talleresTardeContainer');
-            containerTarde.innerHTML = '';
-            
-            talleres.tarde.forEach(taller => {
-                const porcentaje = (taller.inscritos.length / taller.cupo) * 100;
-                const cupoLleno = taller.inscritos.length >= taller.cupo;
-                const estaSeleccionado = talleresSeleccionados.includes(taller.id);
-                
-                const card = document.createElement('div');
-                card.className = `col-md-6 col-lg-4 mb-3 taller-card ${estaSeleccionado ? 'taller-selected' : ''} ${cupoLleno ? 'taller-full' : ''}`;
-                card.innerHTML = `
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h6 class="card-title">${taller.nombre}</h6>
-                            <p class="card-text taller-info"><i class="far fa-clock me-1"></i>${taller.horario}</p>
-                            <p class="card-text taller-info"><i class="fas fa-map-marker-alt me-1"></i>${taller.lugar}</p>
-                            <p class="card-text taller-info"><i class="fas fa-user me-1"></i>${taller.instructores}</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="form-check">
-                                    <input class="form-check-input taller-checkbox" type="checkbox" 
-                                           id="${taller.id}" value="${taller.id}" 
-                                           ${cupoLleno ? 'disabled' : ''} ${estaSeleccionado ? 'checked' : ''}>
-                                    <label class="form-check-label" for="${taller.id}">
-                                        Seleccionar
-                                    </label>
-                                </div>
-                                <span class="badge ${cupoLleno ? 'badge-full' : 'bg-primary'}">
-                                    ${taller.inscritos.length}/${taller.cupo}
-                                </span>
-                            </div>
-                            <div class="progress mt-2">
-                                <div class="progress-bar ${porcentaje >= 100 ? 'bg-danger' : 'bg-success'}" 
-                                     role="progressbar" style="width: ${Math.min(porcentaje, 100)}%;" 
-                                     aria-valuenow="${porcentaje}" aria-valuemin="0" aria-valuemax="100">
-                                    ${Math.round(porcentaje)}%
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                containerTarde.appendChild(card);
-            });
-            
-            // Actualizar también el selector de talleres para administración
-            actualizarSelectorTalleres();
-            actualizarListaSeleccionados();
-        }
-        
-        // Inicializar eventos
-        function inicializarEventos() {
-            // Evento para el formulario de registro
-            document.getElementById('registroForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                registrarEstudiante();
-            });
-            
-            // Evento para checkboxes de talleres (limitar a 2 selecciones)
-            document.addEventListener('change', function(e) {
-                if (e.target.classList.contains('taller-checkbox')) {
-                    manejarSeleccionTaller(e.target);
-                }
-            });
-            
-            // Evento para el botón de administrador
-            document.getElementById('adminBtn').addEventListener('click', function() {
-                const password = document.getElementById('adminPassword').value;
-                if (password === 'admin123') { // Contraseña de ejemplo
-                    document.getElementById('adminPanel').style.display = 'block';
-                    cargarPanelAdministracion();
-                } else {
-                    alert('Contraseña incorrecta');
-                }
-            });
-            
-            // Evento para el selector de talleres en administración
-            document.getElementById('selectTallerAsistencia').addEventListener('change', function() {
-                cargarListaAsistencia(this.value);
-            });
-            
-            // Evento para imprimir constancia
-            document.getElementById('imprimirConstancia').addEventListener('click', function() {
-                window.print();
-            });
-        }
-        
-        // Manejar la selección de talleres
-        function manejarSeleccionTaller(checkbox) {
-            const idTaller = checkbox.value;
-            
-            if (checkbox.checked) {
-                // Verificar si ya se han seleccionado 2 talleres
-                if (talleresSeleccionados.length >= 2) {
-                    checkbox.checked = false;
-                    alert('Solo puedes seleccionar 2 talleres. Deselecciona uno primero.');
-                    return;
-                }
-                
-                // Verificar disponibilidad
-                let tallerEncontrado = null;
+                // Actualizar los arrays de inscritos en cada taller
                 for (const grupo in talleres) {
-                    tallerEncontrado = talleres[grupo].find(t => t.id === idTaller);
-                    if (tallerEncontrado) break;
-                }
-                
-                if (tallerEncontrado && tallerEncontrado.inscritos.length >= tallerEncontrado.cupo) {
-                    checkbox.checked = false;
-                    alert(`El taller "${tallerEncontrado.nombre}" ya está lleno. Por favor selecciona otro.`);
-                    return;
-                }
-                
-                talleresSeleccionados.push(idTaller);
-            } else {
-                // Remover de la lista de seleccionados
-                const index = talleresSeleccionados.indexOf(idTaller);
-                if (index > -1) {
-                    talleresSeleccionados.splice(index, 1);
-                }
-            }
-            
-            // Actualizar la interfaz
-            actualizarListaSeleccionados();
-            cargarTalleres(); // Recargar para actualizar estilos
-        }
-        
-        // Actualizar la lista de talleres seleccionados
-        function actualizarListaSeleccionados() {
-            const lista = document.getElementById('talleresSeleccionadosList');
-            lista.innerHTML = '';
-            
-            if (talleresSeleccionados.length === 0) {
-                lista.innerHTML = '<li class="text-muted">Aún no has seleccionado talleres</li>';
-                return;
-            }
-            
-            talleresSeleccionados.forEach(idTaller => {
-                let tallerEncontrado = null;
-                for (const grupo in talleres) {
-                    tallerEncontrado = talleres[grupo].find(t => t.id === idTaller);
-                    if (tallerEncontrado) break;
-                }
-                
-                if (tallerEncontrado) {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<strong>${tallerEncontrado.nombre}</strong> <span class="text-muted">(${tallerEncontrado.horario})</span>`;
-                    lista.appendChild(li);
-                }
-            });
-        }
-        
-        // Registrar un estudiante
-        function registrarEstudiante() {
-            const nombre = document.getElementById('nombre').value;
-            const matricula = document.getElementById('matricula').value;
-            const email = document.getElementById('email').value;
-            const cuatrimestre = document.getElementById('cuatrimestre').value;
-            
-            // Verificar que se haya seleccionado un cuatrimestre
-            if (!cuatrimestre) {
-                alert('Debes seleccionar tu cuatrimestre');
-                return;
-            }
-            
-            // Verificar que se hayan seleccionado exactamente 2 talleres
-            if (talleresSeleccionados.length !== 2) {
-                alert('Debes seleccionar exactamente 2 talleres');
-                return;
-            }
-            
-            // Verificar disponibilidad
-            for (const idTaller of talleresSeleccionados) {
-                let tallerEncontrado = null;
-                
-                // Buscar en todos los grupos de talleres
-                for (const grupo in talleres) {
-                    tallerEncontrado = talleres[grupo].find(t => t.id === idTaller);
-                    if (tallerEncontrado) break;
-                }
-                
-                if (tallerEncontrado && tallerEncontrado.inscritos.length >= tallerEncontrado.cupo) {
-                    alert(`El taller "${tallerEncontrado.nombre}" ya está lleno. Por favor selecciona otro.`);
-                    return;
-                }
-            }
-            
-            // Registrar estudiante
-            const estudiante = {
-                id: Date.now().toString(),
-                nombre,
-                matricula,
-                email,
-                cuatrimestre,
-                talleres: [...talleresSeleccionados], // Copia del array
-                asistencia: {
-                    talleres: {}
-                }
-            };
-            
-            // Agregar a los talleres seleccionados
-            for (const idTaller of talleresSeleccionados) {
-                for (const grupo in talleres) {
-                    const taller = talleres[grupo].find(t => t.id === idTaller);
-                    if (taller) {
-                        taller.inscritos.push(estudiante.id);
-                        break;
-                    }
-                }
-            }
-            
-            estudiantesRegistrados.push(estudiante);
-            
-            // Actualizar interfaz
-            talleresSeleccionados = []; // Reiniciar selecciones
-            cargarTalleres();
-            document.getElementById('registroForm').reset();
-            
-            // Mostrar confirmación
-            alert(`¡Registro exitoso, ${nombre}!\nTu registro ha sido completado correctamente.`);
-            
-            // Actualizar constancia
-            actualizarConstancia(estudiante);
-        }
-        
-        // Cargar panel de administración
-        function cargarPanelAdministracion() {
-            const container = document.getElementById('listaTalleresAdmin');
-            container.innerHTML = '';
-            
-            // Combinar todos los talleres para mostrar en administración
-            const todosTalleres = [...talleres.manana, ...talleres.tarde];
-            
-            todosTalleres.forEach(taller => {
-                const card = document.createElement('div');
-                card.className = 'card mb-2';
-                card.innerHTML = `
-                    <div class="card-body py-2">
-                        <h6 class="card-title mb-1">${taller.nombre}</h6>
-                        <p class="card-text mb-1"><small><strong>Horario:</strong> ${taller.horario}</small></p>
-                        <p class="card-text mb-1"><small><strong>Lugar:</strong> ${taller.lugar}</small></p>
-                        <p class="card-text mb-1"><small><strong>Inscritos:</strong> ${taller.inscritos.length}/${taller.cupo}</small></p>
-                        <button class="btn btn-sm btn-outline-primary ver-inscritos" data-taller="${taller.id}">
-                            Ver inscritos
-                        </button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-            
-            // Agregar eventos a los botones de ver inscritos
-            document.querySelectorAll('.ver-inscritos').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const idTaller = this.getAttribute('data-taller');
-                    mostrarInscritosTaller(idTaller);
-                });
-            });
-        }
-        
-        // Mostrar estudiantes inscritos en un taller
-        function mostrarInscritosTaller(idTaller) {
-            let tallerEncontrado = null;
-            
-            // Buscar en todos los grupos de talleres
-            for (const grupo in talleres) {
-                tallerEncontrado = talleres[grupo].find(t => t.id === idTaller);
-                if (tallerEncontrado) break;
-            }
-            
-            if (!tallerEncontrado) return;
-            
-            let lista = `Estudiantes inscritos en: ${tallerEncontrado.nombre}\nHorario: ${tallerEncontrado.horario}\n\n`;
-            
-            if (tallerEncontrado.inscritos.length === 0) {
-                lista += 'No hay estudiantes inscritos en este taller.';
-            } else {
-                tallerEncontrado.inscritos.forEach(idEstudiante => {
-                    const estudiante = estudiantesRegistrados.find(e => e.id === idEstudiante);
-                    if (estudiante) {
-                        lista += `- ${estudiante.nombre} (${estudiante.matricula}) - ${estudiante.cuatrimestre} Cuatrimestre\n`;
-                    }
-                });
-            }
-            
-            alert(lista);
-        }
-        
-        // Cargar lista de asistencia para un taller
-        function cargarListaAsistencia(idTaller) {
-            const container = document.getElementById('listaAsistencia');
-            container.innerHTML = '';
-            
-            let tallerEncontrado = null;
-            
-            // Buscar en todos los grupos de talleres
-            for (const grupo in talleres) {
-                tallerEncontrado = talleres[grupo].find(t => t.id === idTaller);
-                if (tallerEncontrado) break;
-            }
-            
-            if (!tallerEncontrado) return;
-            
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <div class="card-header">
-                    <h6 class="mb-0">Lista de asistencia: ${tallerEncontrado.nombre}</h6>
-                    <small class="text-muted">${tallerEncontrado.horario} - ${tallerEncontrado.lugar}</small>
-                </div>
-                <div class="card-body">
-                    ${tallerEncontrado.inscritos.map(idEstudiante => {
-                        const estudiante = estudiantesRegistrados.find(e => e.id === idEstudiante);
-                        if (!estudiante) return '';
-                        
-                        return `
-                            <div class="form-check mb-2">
-                                <input class="form-check-input asistencia-checkbox" type="checkbox" 
-                                       id="asist-${estudiante.id}" data-estudiante="${estudiante.id}" 
-                                       data-taller="${idTaller}" ${estudiante.asistencia.talleres[idTaller] ? 'checked' : ''}>
-                                <label class="form-check-label" for="asist-${estudiante.id}">
-                                    ${estudiante.nombre} (${estudiante.matricula}) - ${estudiante.cuatrimestre}
-                                </label>
-                            </div>
-                        `;
-                    }).join('')}
-                    <button class="btn btn-sm btn-success guardar-asistencia" data-taller="${idTaller}">
-                        Guardar asistencia
-                    </button>
-                </div>
-            `;
-            container.appendChild(card);
-            
-            // Agregar evento al botón de guardar asistencia
-            document.querySelector('.guardar-asistencia').addEventListener('click', function() {
-                guardarAsistenciaTaller(idTaller);
-            });
-        }
-        
-        // Guardar asistencia de un taller
-        function guardarAsistenciaTaller(idTaller) {
-            const checkboxes = document.querySelectorAll(`.asistencia-checkbox[data-taller="${idTaller}"]`);
-            
-            checkboxes.forEach(checkbox => {
-                const idEstudiante = checkbox.getAttribute('data-estudiante');
-                const estudiante = estudiantesRegistrados.find(e => e.id === idEstudiante);
-                
-                if (estudiante) {
-                    estudiante.asistencia.talleres[idTaller] = checkbox.checked;
-                }
-            });
-            
-            alert('Asistencia guardada correctamente');
-            
-            // Actualizar progreso de asistencia para todos los estudiantes
-            estudiantesRegistrados.forEach(est => {
-                actualizarConstancia(est);
-            });
-        }
-        
-        // Actualizar constancia de un estudiante
-        function actualizarConstancia(estudiante) {
-            document.getElementById('nombreConstancia').textContent = estudiante.nombre;
-            
-            // Calcular porcentaje de asistencia (solo talleres ahora)
-            const porcentaje = calcularPorcentajeAsistencia(estudiante);
-            document.getElementById('progresoAsistencia').style.width = `${porcentaje}%`;
-            document.getElementById('progresoAsistencia').textContent = `${porcentaje}%`;
-            document.getElementById('progresoAsistencia').setAttribute('aria-valuenow', porcentaje);
-            
-            // Habilitar botón de impresión si cumple con el porcentaje requerido
-            const btnImprimir = document.getElementById('imprimirConstancia');
-            if (porcentaje >= 85) {
-                btnImprimir.disabled = false;
-                document.getElementById('progresoAsistencia').classList.remove('bg-warning');
-                document.getElementById('progresoAsistencia').classList.add('bg-success');
-            } else {
-                btnImprimir.disabled = true;
-                document.getElementById('progresoAsistencia').classList.remove('bg-success');
-                document.getElementById('progresoAsistencia').classList.add('bg-warning');
-            }
-        }
-        
-        // Calcular porcentaje de asistencia de un estudiante (solo talleres)
-        function calcularPorcentajeAsistencia(estudiante) {
-            let totalEventos = 0;
-            let eventosAsistidos = 0;
-            
-            // Contar talleres (2 talleres seleccionados)
-            totalEventos += 2;
-            estudiante.talleres.forEach(idTaller => {
-                if (estudiante.asistencia.talleres[idTaller]) {
-                    eventosAsistidos++;
-                }
-            });
-            
-            return totalEventos > 0 ? Math.round((eventosAsistidos / totalEventos) * 100) : 0;
-        }
-        
-        // Actualizar selector de talleres en administración
-        function actualizarSelectorTalleres() {
-            const selector = document.getElementById('selectTallerAsistencia');
-            selector.innerHTML = '<option value="">Selecciona un taller</option>';
-            
-            // Combinar todos los talleres para el selector
-            const todosTalleres = [...talleres.manana, ...talleres.tarde];
-            
-            todosTalleres.forEach(taller => {
-                const option = document.createElement('option');
-                option.value = taller.id;
-                option.textContent = `${taller.nombre} (${taller.horario})`;
-                selector.appendChild(option);
-            });
-        }
-    </script>
-</body>
-</html>
+                    talleres[grupo].forEach(taller => {
+                        const tallerGuardado = talleresData[grupo].find(t => t.id === taller.id);
+                        if (tallerGuardado) {
+                            taller
