@@ -936,4 +936,636 @@
                     talleres[grupo].forEach(taller => {
                         const tallerGuardado = talleresData[grupo].find(t => t.id === taller.id);
                         if (tallerGuardado) {
-                            taller
+                            taller.inscritos = tallerGuardado.inscritos;
+                        }
+                    });
+                }
+            }
+        }
+        
+        // Guardar datos en localStorage
+        function guardarDatos() {
+            localStorage.setItem('estudiantesRegistrados', JSON.stringify(estudiantesRegistrados));
+            localStorage.setItem('talleresData', JSON.stringify(talleres));
+        }
+        
+        // Cargar los talleres en la interfaz organizados por horarios
+        function cargarTalleres() {
+            // Cargar talleres de mañana
+            const containerManana = document.getElementById('talleresMananaContainer');
+            containerManana.innerHTML = '';
+            
+            talleres.manana.forEach((taller, index) => {
+                const porcentaje = (taller.inscritos.length / taller.cupo) * 100;
+                const cupoLleno = taller.inscritos.length >= taller.cupo;
+                const estaSeleccionado = talleresSeleccionados.includes(taller.id);
+                
+                const card = document.createElement('div');
+                card.className = `col-md-6 col-lg-4 mb-3 taller-card ${estaSeleccionado ? 'taller-selected' : ''} ${cupoLleno ? 'taller-full' : ''}`;
+                card.innerHTML = `
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h6 class="card-title"><span class="taller-counter">${index + 1}</span>${taller.nombre}</h6>
+                            <p class="card-text taller-info"><i class="far fa-clock me-1"></i>${taller.horario}</p>
+                            <p class="card-text taller-info"><i class="fas fa-map-marker-alt me-1"></i>${taller.lugar}</p>
+                            <p class="card-text taller-info"><i class="fas fa-user me-1"></i>${taller.instructores}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="form-check">
+                                    <input class="form-check-input taller-checkbox" type="checkbox" 
+                                           id="${taller.id}" value="${taller.id}" 
+                                           ${cupoLleno ? 'disabled' : ''} ${estaSeleccionado ? 'checked' : ''}>
+                                    <label class="form-check-label" for="${taller.id}">
+                                        Seleccionar
+                                    </label>
+                                </div>
+                                <span class="badge ${cupoLleno ? 'badge-full' : 'bg-primary'}">
+                                    ${taller.inscritos.length}/${taller.cupo}
+                                </span>
+                            </div>
+                            <div class="progress mt-2">
+                                <div class="progress-bar ${porcentaje >= 100 ? 'bg-danger' : 'bg-success'}" 
+                                     role="progressbar" style="width: ${Math.min(porcentaje, 100)}%;" 
+                                     aria-valuenow="${porcentaje}" aria-valuemin="0" aria-valuemax="100">
+                                    ${Math.round(porcentaje)}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                containerManana.appendChild(card);
+            });
+            
+            // Cargar talleres de tarde
+            const containerTarde = document.getElementById('talleresTardeContainer');
+            containerTarde.innerHTML = '';
+            
+            talleres.tarde.forEach((taller, index) => {
+                const porcentaje = (taller.inscritos.length / taller.cupo) * 100;
+                const cupoLleno = taller.inscritos.length >= taller.cupo;
+                const estaSeleccionado = talleresSeleccionados.includes(taller.id);
+                
+                const card = document.createElement('div');
+                card.className = `col-md-6 col-lg-4 mb-3 taller-card ${estaSeleccionado ? 'taller-selected' : ''} ${cupoLleno ? 'taller-full' : ''}`;
+                card.innerHTML = `
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h6 class="card-title"><span class="taller-counter">${index + 1}</span>${taller.nombre}</h6>
+                            <p class="card-text taller-info"><i class="far fa-clock me-1"></i>${taller.horario}</p>
+                            <p class="card-text taller-info"><i class="fas fa-map-marker-alt me-1"></i>${taller.lugar}</p>
+                            <p class="card-text taller-info"><i class="fas fa-user me-1"></i>${taller.instructores}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="form-check">
+                                    <input class="form-check-input taller-checkbox" type="checkbox" 
+                                           id="${taller.id}" value="${taller.id}" 
+                                           ${cupoLleno ? 'disabled' : ''} ${estaSeleccionado ? 'checked' : ''}>
+                                    <label class="form-check-label" for="${taller.id}">
+                                        Seleccionar
+                                    </label>
+                                </div>
+                                <span class="badge ${cupoLleno ? 'badge-full' : 'bg-primary'}">
+                                    ${taller.inscritos.length}/${taller.cupo}
+                                </span>
+                            </div>
+                            <div class="progress mt-2">
+                                <div class="progress-bar ${porcentaje >= 100 ? 'bg-danger' : 'bg-success'}" 
+                                     role="progressbar" style="width: ${Math.min(porcentaje, 100)}%;" 
+                                     aria-valuenow="${porcentaje}" aria-valuemin="0" aria-valuemax="100">
+                                    ${Math.round(porcentaje)}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                containerTarde.appendChild(card);
+            });
+            
+            // Actualizar también el selector de talleres para administración
+            actualizarSelectorTalleres();
+            actualizarListaSeleccionados();
+        }
+        
+        // Inicializar eventos
+        function inicializarEventos() {
+            // Evento para el formulario de registro
+            document.getElementById('registroForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                registrarEstudiante();
+            });
+            
+            // Evento para checkboxes de talleres (limitar a 2 selecciones)
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('taller-checkbox')) {
+                    manejarSeleccionTaller(e.target);
+                }
+            });
+            
+            // Evento para el botón de administrador
+            document.getElementById('adminBtn').addEventListener('click', function() {
+                const password = document.getElementById('adminPassword').value;
+                if (password === 'admin123') { // Contraseña de ejemplo
+                    document.getElementById('adminPanel').style.display = 'block';
+                    cargarPanelAdministracion();
+                    actualizarEstadisticas();
+                } else {
+                    alert('Contraseña incorrecta');
+                }
+            });
+            
+            // Evento para el selector de talleres en administración
+            document.getElementById('selectTallerAsistencia').addEventListener('change', function() {
+                cargarListaAsistencia(this.value);
+            });
+            
+            // Evento para imprimir constancia
+            document.getElementById('imprimirConstancia').addEventListener('click', function() {
+                window.print();
+            });
+            
+            // Evento para exportar datos
+            document.getElementById('exportarDatos').addEventListener('click', function() {
+                exportarDatos();
+            });
+            
+            // Evento para limpiar datos
+            document.getElementById('limpiarDatos').addEventListener('click', function() {
+                if (confirm('¿Estás seguro de que deseas eliminar todos los datos? Esta acción no se puede deshacer.')) {
+                    limpiarDatos();
+                }
+            });
+            
+            // Validación en tiempo real del formulario
+            const inputs = document.querySelectorAll('#registroForm input, #registroForm select');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    validarCampo(this);
+                });
+            });
+        }
+        
+        // Validar campo individual
+        function validarCampo(campo) {
+            if (campo.value.trim() === '') {
+                campo.classList.add('is-invalid');
+                return false;
+            } else {
+                campo.classList.remove('is-invalid');
+                return true;
+            }
+        }
+        
+        // Manejar la selección de talleres
+        function manejarSeleccionTaller(checkbox) {
+            const idTaller = checkbox.value;
+            
+            if (checkbox.checked) {
+                // Verificar si ya se han seleccionado 2 talleres
+                if (talleresSeleccionados.length >= 2) {
+                    checkbox.checked = false;
+                    mostrarAlerta('Solo puedes seleccionar 2 talleres. Deselecciona uno primero.', 'warning');
+                    return;
+                }
+                
+                // Verificar disponibilidad
+                let tallerEncontrado = null;
+                for (const grupo in talleres) {
+                    tallerEncontrado = talleres[grupo].find(t => t.id === idTaller);
+                    if (tallerEncontrado) break;
+                }
+                
+                if (tallerEncontrado && tallerEncontrado.inscritos.length >= tallerEncontrado.cupo) {
+                    checkbox.checked = false;
+                    mostrarAlerta(`El taller "${tallerEncontrado.nombre}" ya está lleno. Por favor selecciona otro.`, 'danger');
+                    return;
+                }
+                
+                talleresSeleccionados.push(idTaller);
+                mostrarAlerta(`Has seleccionado: ${tallerEncontrado.nombre}. ${2 - talleresSeleccionados.length} taller(es) restante(s).`, 'success');
+            } else {
+                // Remover de la lista de seleccionados
+                const index = talleresSeleccionados.indexOf(idTaller);
+                if (index > -1) {
+                    talleresSeleccionados.splice(index, 1);
+                    mostrarAlerta(`Has deseleccionado un taller. ${2 - talleresSeleccionados.length} taller(es) restante(s).`, 'info');
+                }
+            }
+            
+            // Actualizar la interfaz
+            actualizarListaSeleccionados();
+            cargarTalleres(); // Recargar para actualizar estilos
+        }
+        
+        // Mostrar alerta personalizada
+        function mostrarAlerta(mensaje, tipo) {
+            const alerta = document.getElementById('alertSeleccion');
+            const textoAlerta = document.getElementById('alertText');
+            
+            alerta.className = `alert alert-${tipo} alert-custom`;
+            textoAlerta.textContent = mensaje;
+            alerta.style.display = 'block';
+            
+            // Ocultar después de 5 segundos
+            setTimeout(() => {
+                alerta.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Actualizar la lista de talleres seleccionados
+        function actualizarListaSeleccionados() {
+            const lista = document.getElementById('talleresSeleccionadosList');
+            lista.innerHTML = '';
+            
+            if (talleresSeleccionados.length === 0) {
+                lista.innerHTML = '<li class="text-muted">Aún no has seleccionado talleres</li>';
+                return;
+            }
+            
+            talleresSeleccionados.forEach(idTaller => {
+                let tallerEncontrado = null;
+                for (const grupo in talleres) {
+                    tallerEncontrado = talleres[grupo].find(t => t.id === idTaller);
+                    if (tallerEncontrado) break;
+                }
+                
+                if (tallerEncontrado) {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${tallerEncontrado.nombre}</strong> <span class="text-muted">(${tallerEncontrado.horario})</span>`;
+                    lista.appendChild(li);
+                }
+            });
+        }
+        
+        // Registrar un estudiante
+        function registrarEstudiante() {
+            const nombre = document.getElementById('nombre').value;
+            const matricula = document.getElementById('matricula').value;
+            const email = document.getElementById('email').value;
+            const cuatrimestre = document.getElementById('cuatrimestre').value;
+            
+            // Validar campos
+            let formularioValido = true;
+            const campos = [
+                { campo: document.getElementById('nombre'), valor: nombre },
+                { campo: document.getElementById('matricula'), valor: matricula },
+                { campo: document.getElementById('email'), valor: email },
+                { campo: document.getElementById('cuatrimestre'), valor: cuatrimestre }
+            ];
+            
+            campos.forEach(item => {
+                if (!validarCampo(item.campo)) {
+                    formularioValido = false;
+                }
+            });
+            
+            if (!formularioValido) {
+                mostrarAlerta('Por favor completa todos los campos requeridos correctamente.', 'danger');
+                return;
+            }
+            
+            // Verificar que se haya seleccionado un cuatrimestre
+            if (!cuatrimestre) {
+                mostrarAlerta('Debes seleccionar tu cuatrimestre', 'danger');
+                return;
+            }
+            
+            // Verificar que se hayan seleccionado exactamente 2 talleres
+            if (talleresSeleccionados.length !== 2) {
+                mostrarAlerta('Debes seleccionar exactamente 2 talleres', 'danger');
+                return;
+            }
+            
+            // Verificar disponibilidad
+            for (const idTaller of talleresSeleccionados) {
+                let tallerEncontrado = null;
+                
+                // Buscar en todos los grupos de talleres
+                for (const grupo in talleres) {
+                    tallerEncontrado = talleres[grupo].find(t => t.id === idTaller);
+                    if (tallerEncontrado) break;
+                }
+                
+                if (tallerEncontrado && tallerEncontrado.inscritos.length >= tallerEncontrado.cupo) {
+                    mostrarAlerta(`El taller "${tallerEncontrado.nombre}" ya está lleno. Por favor selecciona otro.`, 'danger');
+                    return;
+                }
+            }
+            
+            // Registrar estudiante
+            const estudiante = {
+                id: Date.now().toString(),
+                nombre,
+                matricula,
+                email,
+                cuatrimestre,
+                talleres: [...talleresSeleccionados], // Copia del array
+                asistencia: {
+                    talleres: {}
+                },
+                fechaRegistro: new Date().toISOString()
+            };
+            
+            // Agregar a los talleres seleccionados
+            for (const idTaller of talleresSeleccionados) {
+                for (const grupo in talleres) {
+                    const taller = talleres[grupo].find(t => t.id === idTaller);
+                    if (taller) {
+                        taller.inscritos.push(estudiante.id);
+                        break;
+                    }
+                }
+            }
+            
+            estudiantesRegistrados.push(estudiante);
+            
+            // Guardar datos en localStorage
+            guardarDatos();
+            
+            // Actualizar interfaz
+            talleresSeleccionados = []; // Reiniciar selecciones
+            cargarTalleres();
+            document.getElementById('registroForm').reset();
+            
+            // Mostrar confirmación
+            mostrarAlerta(`¡Registro exitoso, ${nombre}! Tu registro ha sido completado correctamente.`, 'success');
+            
+            // Actualizar constancia
+            actualizarConstancia(estudiante);
+        }
+        
+        // Cargar panel de administración
+        function cargarPanelAdministracion() {
+            const container = document.getElementById('listaTalleresAdmin');
+            container.innerHTML = '';
+            
+            // Combinar todos los talleres para mostrar en administración
+            const todosTalleres = [...talleres.manana, ...talleres.tarde];
+            
+            todosTalleres.forEach(taller => {
+                const card = document.createElement('div');
+                card.className = 'card mb-2';
+                card.innerHTML = `
+                    <div class="card-body py-2">
+                        <h6 class="card-title mb-1">${taller.nombre}</h6>
+                        <p class="card-text mb-1"><small><strong>Horario:</strong> ${taller.horario}</small></p>
+                        <p class="card-text mb-1"><small><strong>Lugar:</strong> ${taller.lugar}</small></p>
+                        <p class="card-text mb-1"><small><strong>Inscritos:</strong> ${taller.inscritos.length}/${taller.cupo}</small></p>
+                        <button class="btn btn-sm btn-outline-primary ver-inscritos" data-taller="${taller.id}">
+                            Ver inscritos
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            
+            // Agregar eventos a los botones de ver inscritos
+            document.querySelectorAll('.ver-inscritos').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const idTaller = this.getAttribute('data-taller');
+                    mostrarInscritosTaller(idTaller);
+                });
+            });
+        }
+        
+        // Mostrar estudiantes inscritos en un taller
+        function mostrarInscritosTaller(idTaller) {
+            let tallerEncontrado = null;
+            
+            // Buscar en todos los grupos de talleres
+            for (const grupo in talleres) {
+                tallerEncontrado = talleres[grupo].find(t => t.id === idTaller);
+                if (tallerEncontrado) break;
+            }
+            
+            if (!tallerEncontrado) return;
+            
+            let lista = `Estudiantes inscritos en: ${tallerEncontrado.nombre}\nHorario: ${tallerEncontrado.horario}\n\n`;
+            
+            if (tallerEncontrado.inscritos.length === 0) {
+                lista += 'No hay estudiantes inscritos en este taller.';
+            } else {
+                tallerEncontrado.inscritos.forEach(idEstudiante => {
+                    const estudiante = estudiantesRegistrados.find(e => e.id === idEstudiante);
+                    if (estudiante) {
+                        lista += `- ${estudiante.nombre} (${estudiante.matricula}) - ${estudiante.cuatrimestre} Cuatrimestre\n`;
+                    }
+                });
+            }
+            
+            alert(lista);
+        }
+        
+        // Cargar lista de asistencia para un taller
+        function cargarListaAsistencia(idTaller) {
+            const container = document.getElementById('listaAsistencia');
+            container.innerHTML = '';
+            
+            let tallerEncontrado = null;
+            
+            // Buscar en todos los grupos de talleres
+            for (const grupo in talleres) {
+                tallerEncontrado = talleres[grupo].find(t => t.id === idTaller);
+                if (tallerEncontrado) break;
+            }
+            
+            if (!tallerEncontrado) return;
+            
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="card-header">
+                    <h6 class="mb-0">Lista de asistencia: ${tallerEncontrado.nombre}</h6>
+                    <small class="text-muted">${tallerEncontrado.horario} - ${tallerEncontrado.lugar}</small>
+                </div>
+                <div class="card-body">
+                    ${tallerEncontrado.inscritos.map(idEstudiante => {
+                        const estudiante = estudiantesRegistrados.find(e => e.id === idEstudiante);
+                        if (!estudiante) return '';
+                        
+                        return `
+                            <div class="form-check mb-2">
+                                <input class="form-check-input asistencia-checkbox" type="checkbox" 
+                                       id="asist-${estudiante.id}" data-estudiante="${estudiante.id}" 
+                                       data-taller="${idTaller}" ${estudiante.asistencia.talleres[idTaller] ? 'checked' : ''}>
+                                <label class="form-check-label" for="asist-${estudiante.id}">
+                                    ${estudiante.nombre} (${estudiante.matricula}) - ${estudiante.cuatrimestre}
+                                </label>
+                            </div>
+                        `;
+                    }).join('')}
+                    <button class="btn btn-sm btn-success guardar-asistencia" data-taller="${idTaller}">
+                        Guardar asistencia
+                    </button>
+                </div>
+            `;
+            container.appendChild(card);
+            
+            // Agregar evento al botón de guardar asistencia
+            document.querySelector('.guardar-asistencia').addEventListener('click', function() {
+                guardarAsistenciaTaller(idTaller);
+            });
+        }
+        
+        // Guardar asistencia de un taller
+        function guardarAsistenciaTaller(idTaller) {
+            const checkboxes = document.querySelectorAll(`.asistencia-checkbox[data-taller="${idTaller}"]`);
+            
+            checkboxes.forEach(checkbox => {
+                const idEstudiante = checkbox.getAttribute('data-estudiante');
+                const estudiante = estudiantesRegistrados.find(e => e.id === idEstudiante);
+                
+                if (estudiante) {
+                    estudiante.asistencia.talleres[idTaller] = checkbox.checked;
+                }
+            });
+            
+            // Guardar cambios en localStorage
+            guardarDatos();
+            
+            alert('Asistencia guardada correctamente');
+            
+            // Actualizar progreso de asistencia para todos los estudiantes
+            estudiantesRegistrados.forEach(est => {
+                actualizarConstancia(est);
+            });
+            
+            // Actualizar estadísticas
+            actualizarEstadisticas();
+        }
+        
+        // Actualizar constancia de un estudiante
+        function actualizarConstancia(estudiante) {
+            document.getElementById('nombreConstancia').textContent = estudiante.nombre;
+            
+            // Calcular porcentaje de asistencia (solo talleres ahora)
+            const porcentaje = calcularPorcentajeAsistencia(estudiante);
+            document.getElementById('progresoAsistencia').style.width = `${porcentaje}%`;
+            document.getElementById('progresoAsistencia').textContent = `${porcentaje}%`;
+            document.getElementById('progresoAsistencia').setAttribute('aria-valuenow', porcentaje);
+            
+            // Habilitar botón de impresión si cumple con el porcentaje requerido
+            const btnImprimir = document.getElementById('imprimirConstancia');
+            if (porcentaje >= 85) {
+                btnImprimir.disabled = false;
+                document.getElementById('progresoAsistencia').classList.remove('bg-warning');
+                document.getElementById('progresoAsistencia').classList.add('bg-success');
+            } else {
+                btnImprimir.disabled = true;
+                document.getElementById('progresoAsistencia').classList.remove('bg-success');
+                document.getElementById('progresoAsistencia').classList.add('bg-warning');
+            }
+        }
+        
+        // Calcular porcentaje de asistencia de un estudiante (solo talleres)
+        function calcularPorcentajeAsistencia(estudiante) {
+            let totalEventos = 0;
+            let eventosAsistidos = 0;
+            
+            // Contar talleres (2 talleres seleccionados)
+            totalEventos += 2;
+            estudiante.talleres.forEach(idTaller => {
+                if (estudiante.asistencia.talleres[idTaller]) {
+                    eventosAsistidos++;
+                }
+            });
+            
+            return totalEventos > 0 ? Math.round((eventosAsistidos / totalEventos) * 100) : 0;
+        }
+        
+        // Actualizar selector de talleres en administración
+        function actualizarSelectorTalleres() {
+            const selector = document.getElementById('selectTallerAsistencia');
+            selector.innerHTML = '<option value="">Selecciona un taller</option>';
+            
+            // Combinar todos los talleres para el selector
+            const todosTalleres = [...talleres.manana, ...talleres.tarde];
+            
+            todosTalleres.forEach(taller => {
+                const option = document.createElement('option');
+                option.value = taller.id;
+                option.textContent = `${taller.nombre} (${taller.horario})`;
+                selector.appendChild(option);
+            });
+        }
+        
+        // Actualizar estadísticas en el panel de administración
+        function actualizarEstadisticas() {
+            // Total de inscritos
+            document.getElementById('totalInscritos').textContent = estudiantesRegistrados.length;
+            
+            // Contar talleres llenos y disponibles
+            let talleresLlenos = 0;
+            let talleresDisponibles = 0;
+            const todosTalleres = [...talleres.manana, ...talleres.tarde];
+            
+            todosTalleres.forEach(taller => {
+                if (taller.inscritos.length >= taller.cupo) {
+                    talleresLlenos++;
+                } else {
+                    talleresDisponibles++;
+                }
+            });
+            
+            document.getElementById('talleresLlenos').textContent = talleresLlenos;
+            document.getElementById('talleresDisponibles').textContent = talleresDisponibles;
+            
+            // Calcular porcentaje de asistencia promedio
+            let totalAsistencia = 0;
+            estudiantesRegistrados.forEach(est => {
+                totalAsistencia += calcularPorcentajeAsistencia(est);
+            });
+            
+            const promedioAsistencia = estudiantesRegistrados.length > 0 
+                ? Math.round(totalAsistencia / estudiantesRegistrados.length) 
+                : 0;
+                
+            document.getElementById('porcentajeAsistencia').textContent = `${promedioAsistencia}%`;
+        }
+        
+        // Exportar datos a un archivo JSON
+        function exportarDatos() {
+            const datos = {
+                estudiantes: estudiantesRegistrados,
+                talleres: talleres,
+                fechaExportacion: new Date().toISOString()
+            };
+            
+            const datosStr = JSON.stringify(datos, null, 2);
+            const blob = new Blob([datosStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `datos_simposio_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('Datos exportados correctamente');
+        }
+        
+        // Limpiar todos los datos
+        function limpiarDatos() {
+            // Limpiar arrays
+            estudiantesRegistrados = [];
+            talleresSeleccionados = [];
+            
+            // Limpiar inscritos de todos los talleres
+            for (const grupo in talleres) {
+                talleres[grupo].forEach(taller => {
+                    taller.inscritos = [];
+                });
+            }
+            
+            // Limpiar localStorage
+            localStorage.removeItem('estudiantesRegistrados');
+            localStorage.removeItem('talleresData');
+            
+            // Recargar interfaz
+            cargarTalleres();
+            actualizarEstadisticas();
+            
+            alert('Todos los datos han sido eliminados');
+        }
+    </script>
+</body>
+</html>
