@@ -424,6 +424,13 @@
             font-weight: 600;
         }
         
+        .backup-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
         @media (max-width: 768px) {
             .header {
                 padding: 1.5rem 1rem;
@@ -656,13 +663,41 @@
                             <!-- Lista de estudiantes para pasar lista -->
                         </div>
                         
-                        <div class="mt-4">
-                            <button id="exportarDatos" class="btn btn-success">
-                                <i class="fas fa-file-export me-2"></i>Exportar Datos
-                            </button>
-                            <button id="limpiarDatos" class="btn btn-danger ms-2">
-                                <i class="fas fa-trash me-2"></i>Limpiar Todos los Datos
-                            </button>
+                        <!-- Sección de respaldo de datos -->
+                        <div class="backup-section">
+                            <h5><i class="fas fa-database me-2"></i>Respaldo de Datos</h5>
+                            <p class="text-muted">Para guardar los datos permanentemente, exporta la información y guárdala en un lugar seguro.</p>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <button id="exportarDatos" class="btn btn-success w-100">
+                                        <i class="fas fa-file-export me-2"></i>Exportar Datos
+                                    </button>
+                                    <small class="text-muted d-block mt-1">Descarga todos los datos como archivo JSON</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <button id="importarDatos" class="btn btn-info w-100">
+                                        <i class="fas fa-file-import me-2"></i>Importar Datos
+                                    </button>
+                                    <small class="text-muted d-block mt-1">Carga datos desde un archivo JSON</small>
+                                    <input type="file" id="importFile" accept=".json" style="display: none;">
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <button id="descargarReporte" class="btn btn-primary w-100">
+                                        <i class="fas fa-file-excel me-2"></i>Descargar Reporte Excel
+                                    </button>
+                                    <small class="text-muted d-block mt-1">Genera un reporte en formato Excel</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <button id="limpiarDatos" class="btn btn-danger w-100">
+                                        <i class="fas fa-trash me-2"></i>Limpiar Todos los Datos
+                                    </button>
+                                    <small class="text-muted d-block mt-1">Elimina todos los datos del sistema</small>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -736,6 +771,9 @@
         <p>23 y 24 de Octubre | "Mano a mano por unos alimentos y un futuro mejores"</p>
     </footer>
 
+    <!-- Librería para exportar a Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
     <script>
         // Datos de los talleres del 23 de octubre organizados por horarios
         const talleres = {
@@ -1099,7 +1137,22 @@
             
             // Evento para exportar datos
             document.getElementById('exportarDatos').addEventListener('click', function() {
-                exportarDatos();
+                exportarDatosJSON();
+            });
+            
+            // Evento para importar datos
+            document.getElementById('importarDatos').addEventListener('click', function() {
+                document.getElementById('importFile').click();
+            });
+            
+            // Evento para el input de importación
+            document.getElementById('importFile').addEventListener('change', function(e) {
+                importarDatosJSON(e.target.files[0]);
+            });
+            
+            // Evento para descargar reporte Excel
+            document.getElementById('descargarReporte').addEventListener('click', function() {
+                descargarReporteExcel();
             });
             
             // Evento para limpiar datos
@@ -1539,11 +1592,12 @@
         }
         
         // Exportar datos a un archivo JSON
-        function exportarDatos() {
+        function exportarDatosJSON() {
             const datos = {
                 estudiantes: estudiantesRegistrados,
                 talleres: talleres,
-                fechaExportacion: new Date().toISOString()
+                fechaExportacion: new Date().toISOString(),
+                version: '1.0'
             };
             
             const datosStr = JSON.stringify(datos, null, 2);
@@ -1559,6 +1613,104 @@
             URL.revokeObjectURL(url);
             
             alert('Datos exportados correctamente');
+        }
+        
+        // Importar datos desde un archivo JSON
+        function importarDatosJSON(file) {
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const datos = JSON.parse(e.target.result);
+                    
+                    // Validar estructura básica del archivo
+                    if (!datos.estudiantes || !datos.talleres) {
+                        alert('El archivo no tiene el formato correcto.');
+                        return;
+                    }
+                    
+                    if (confirm('¿Estás seguro de que deseas importar estos datos? Se sobrescribirán los datos actuales.')) {
+                        estudiantesRegistrados = datos.estudiantes;
+                        
+                        // Actualizar talleres con los datos importados
+                        for (const grupo in talleres) {
+                            talleres[grupo].forEach(taller => {
+                                const tallerImportado = datos.talleres[grupo]?.find(t => t.id === taller.id);
+                                if (tallerImportado) {
+                                    taller.inscritos = tallerImportado.inscritos;
+                                }
+                            });
+                        }
+                        
+                        // Guardar en localStorage
+                        guardarDatos();
+                        
+                        // Actualizar interfaz
+                        cargarTalleres();
+                        actualizarEstadisticas();
+                        
+                        alert('Datos importados correctamente');
+                    }
+                } catch (error) {
+                    alert('Error al importar el archivo: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        // Descargar reporte en formato Excel
+        function descargarReporteExcel() {
+            // Crear workbook
+            const wb = XLSX.utils.book_new();
+            
+            // Hoja de estudiantes
+            const estudiantesData = estudiantesRegistrados.map(est => {
+                const talleresNombres = est.talleres.map(idTaller => {
+                    for (const grupo in talleres) {
+                        const taller = talleres[grupo].find(t => t.id === idTaller);
+                        if (taller) return taller.nombre;
+                    }
+                    return 'Taller no encontrado';
+                });
+                
+                return {
+                    'Nombre': est.nombre,
+                    'Matrícula': est.matricula,
+                    'Email': est.email,
+                    'Cuatrimestre': est.cuatrimestre,
+                    'Taller 1': talleresNombres[0] || '',
+                    'Taller 2': talleresNombres[1] || '',
+                    'Fecha Registro': new Date(est.fechaRegistro).toLocaleDateString()
+                };
+            });
+            
+            const wsEstudiantes = XLSX.utils.json_to_sheet(estudiantesData);
+            XLSX.utils.book_append_sheet(wb, wsEstudiantes, 'Estudiantes');
+            
+            // Hoja de talleres
+            const talleresData = [];
+            for (const grupo in talleres) {
+                talleres[grupo].forEach(taller => {
+                    talleresData.push({
+                        'Nombre': taller.nombre,
+                        'Horario': taller.horario,
+                        'Lugar': taller.lugar,
+                        'Instructores': taller.instructores,
+                        'Inscritos': taller.inscritos.length,
+                        'Cupo': taller.cupo,
+                        'Disponibles': taller.cupo - taller.inscritos.length,
+                        'Porcentaje': `${Math.round((taller.inscritos.length / taller.cupo) * 100)}%`
+                    });
+                });
+            }
+            
+            const wsTalleres = XLSX.utils.json_to_sheet(talleresData);
+            XLSX.utils.book_append_sheet(wb, wsTalleres, 'Talleres');
+            
+            // Descargar archivo
+            XLSX.writeFile(wb, `reporte_simposio_${new Date().toISOString().split('T')[0]}.xlsx`);
+            alert('Reporte Excel generado correctamente');
         }
         
         // Limpiar todos los datos
